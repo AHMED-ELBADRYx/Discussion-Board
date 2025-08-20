@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {{ topic.title }}
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">{{ topic.title }}</h2>
+            <small>
+                By {{ topic.created_by.username }} at {{ topic.created_at|date:"Y-m-d H:i" }}
+            </small>
+        </div>
+        <div class="card-body">
+            <h5>Add a new post</h5>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% include "boards/includes/_form_errors.html" %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">Content</label>
+                    {% render_field form.content class="form-control" rows="3" placeholder="Write your post..." %}
+                    
+                    {% if form.content.errors %}
+                        <div id="content-error" class="invalid-feedback d-block">
+                            {% for error in form.content.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Post</button>
+            </form>
+        </div>
+        <a href="{% url 'board_detail' topic.board.id %}" class="btn btn-secondary mt-3">Back to Board</a>
+    </div>
+    <div class="card shadow">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Posts</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for post in posts %}
+                    <li class="list-group-item">
+                        <div>{{ post.content }}</div>
+                        <small class="text-muted">
+                            By {{ post.created_by.username }} at {{ post.created_at|date:"Y-m-d H:i" }}
+                        </small>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No posts yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% include "boards/includes/_field_validation.html" with field_id=form.content.id_for_label error_id="content-error" %}
+
+{% endblock content %}

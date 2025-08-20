@@ -1,0 +1,38 @@
+body {
+    background-color: darkgreen;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+nav {
+    background-color: darkslategray;
+    padding: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 8px 12px;
+    border-bottom: 1px solid yellow;
+}
+
+li:hover {
+    background-color: blanchedalmond;
+}
+
+a {
+    text-decoration: none;
+    color: burlywood;
+}
+
+footer {
+    background-color: darkslategray;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

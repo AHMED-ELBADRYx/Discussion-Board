@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board.title }} - Board Topics{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Board Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>{{ board.title }}
+                </h2>
+                <small class="opacity-75">{{ board.description|default:"No description available" }}</small>
+            </div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'new_topic' board.id %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i>New Topic
+                </a>
+            {% endif %}
+        </div>
+        {% if board.content %}
+            <div class="card-body">
+                <p class="card-text">{{ board.content }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'board_list' %}" class="text-decoration-none">
+                    <i class="fas fa-home me-1"></i>Boards
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ board.title }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Topics List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-comments me-2"></i>Topics 
+                <span class="badge bg-light text-dark ms-2">{{ topics.paginator.count }}</span>
+            </h5>
+            <div class="btn-group btn-group-sm" role="group">
+                <input type="radio" class="btn-check" name="sort" id="newest" autocomplete="off" checked>
+                <label class="btn btn-outline-light" for="newest">Newest</label>
+                <input type="radio" class="btn-check" name="sort" id="oldest" autocomplete="off">
+                <label class="btn btn-outline-light" for="oldest">Oldest</label>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if topics %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50%">
+                                    <i class="fas fa-comment-dots me-1"></i>Topic
+                                </th>
+                                <th style="width: 15%" class="text-center">
+                                    <i class="fas fa-reply me-1"></i>Posts
+                                </th>
+                                <th style="width: 20%">
+                                    <i class="fas fa-user me-1"></i>Created by
+                                </th>
+                                <th style="width: 15%">
+                                    <i class="fas fa-clock me-1"></i>Created at
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for topic in topics %}
+                                <tr class="topic-row" data-href="{% url 'topic_detail' board.id topic.id %}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="topic-icon me-3">
+                                                {% if topic.posts.count > 10 %}
+                                                    <i class="fas fa-fire text-danger"></i>
+                                                {% elif topic.posts.count > 5 %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="fas fa-comment text-secondary"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'topic_detail' board.id topic.id %}" 
+                                                   class="text-decoration-none fw-semibold topic-title">
+                                                    {{ topic.title }}
+                                                </a>
+                                                {% if topic.posts.count == 0 %}
+                                                    <span class="badge bg-success ms-2">New</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary rounded-pill">
+                                            {{ topic.posts.count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2">
+                                                <i class="fas fa-user-circle fa-lg text-muted"></i>
+                                            </div>
+                                            <small>
+                                                <strong>{{ topic.created_by.username }}</strong>
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted" title="{{ topic.created_at }}">
+                                            {{ topic.created_at|date:"M j, Y" }}<br>
+                                            <span class="text-xs">{{ topic.created_at|date:"g:i A" }}</span>
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if topics.has_other_pages %}
+                    <div class="card-footer">
+                        <nav aria-label="Topics pagination">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                {% if topics.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ topics.previous_page_number }}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in topics.paginator.page_range %}
+                                    {% if topics.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > topics.number|add:'-3' and num < topics.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if topics.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ topics.next_page_number }}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ topics.paginator.num_pages }}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">No topics yet</h5>
+                    <p class="text-muted">Be the first to start a discussion!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'new_topic' board.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Create First Topic
+                        </a>
+                    {% else %}
+                        <p class="text-muted">
+                            <a href="{% url 'login' %}" class="text-decoration-none">Login</a> 
+                            to create topics
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+    <script src="{% static 'js/boards.js' %}"></script>
+{% endblock %}

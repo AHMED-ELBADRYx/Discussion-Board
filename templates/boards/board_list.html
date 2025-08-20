@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Board List
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h1 class="mb-0">Board List</h1>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Board Name</th>
+                        <th>Posts</th>
+                        <th>Topic</th>
+                        <th>Last Post</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for board in boards %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'board_detail' board.id %}" class="text-decoration-none fw-bold">
+                                    {{ board.title }} {# The id here will sent to board_id #}
+                                </a>
+                            </td>
+                            <td>{{ board.posts_count }}</td>
+                            <td>{{ board.topics.count }}</td>
+                            <td>
+                                {% if board.last_post %}
+                                    {{ board.last_post|date:"Y-m-d H:i" }}
+                                {% else %}
+                                    <span class="text-muted">No posts</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
