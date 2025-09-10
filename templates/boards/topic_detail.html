@@ -7,58 +7,114 @@
 
 {% block content %}
 <div class="container mt-5">
+    
+    <div class="d-flex align-items-center p-2 mb-3 rounded shadow-sm" 
+     style="background-color:#f8f9fa; border:1px solid #e0e0e0;">
+        <div class="user-avatar me-3">
+            <i class="fas fa-user-circle fa-2x text-secondary"></i>
+        </div>
+        <div>
+            <div>
+            <strong>{{ topic.created_by.username }}</strong>
+            </div>
+            <small class="text-muted">
+            at {{ topic.created_at|date:"Y-m-d H:i" }}
+            </small>
+        </div>
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-header bg-dark text-white">
             <h2 class="mb-0">{{ topic.title }}</h2>
-            <small>
-                By {{ topic.created_by.username }} at {{ topic.created_at|date:"Y-m-d H:i" }}
-            </small>
         </div>
+        
         <div class="card-body">
-            <h5>Add a new post</h5>
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {% include "boards/includes/_form_errors.html" %}
-                
-                <div class="mb-3">
-                    <label for="{{ form.content.id_for_label }}" class="form-label">Content</label>
-                    {% render_field form.content class="form-control" rows="3" placeholder="Write your post..." %}
+            {% if user.is_authenticated %}
+                <h5>Add a new post</h5>
+                <form method="post" novalidate>
+                    {% csrf_token %}
                     
-                    {% if form.content.errors %}
-                        <div id="content-error" class="invalid-feedback d-block">
-                            {% for error in form.content.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    {% include "includes/_form_errors.html" %}
+                    {% include "includes/_form_fields.html" %}
+                    
+                    <button type="submit" class="btn btn-primary">Add Post</button>
+                </form>
+            {% else %}
+                <div class="alert alert-info">
+                    <h5>Want to join the discussion?</h5>
+                    <p>You need to be logged in to add a post.</p>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login to Post
+                    </a>
                 </div>
-
-                <button type="submit" class="btn btn-primary">Add Post</button>
-            </form>
+            {% endif %}
         </div>
-        <a href="{% url 'board_detail' topic.board.id %}" class="btn btn-secondary mt-3">Back to Board</a>
+        <a href="{% url 'board_detail' topic.board.pk %}" class="btn btn-secondary mt-3">Back to Board</a>
     </div>
-    <div class="card shadow">
+    {% if user.is_authenticated %}
+      <div class="card shadow mb-4">
         <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Posts</h5>
+          <h5 class="mb-0">Posts</h5>
         </div>
         <div class="card-body">
-            <ul class="list-group">
-                {% for post in posts %}
-                    <li class="list-group-item">
-                        <div>{{ post.content }}</div>
+          <ul class="list-unstyled">
+            {% for post in posts %}
+              <li class="mb-3">
+                <div class="p-3 rounded shadow-sm" style="background-color:#f8f9fa; border:1px solid #e0e0e0;">
+                  
+                  <!-- User data row + edit button -->
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center">
+                      <div class="me-3">
+                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                      </div>
+                      <div>
+                        <strong>{{ post.created_by.username }}</strong><br>
                         <small class="text-muted">
-                            By {{ post.created_by.username }} at {{ post.created_at|date:"Y-m-d H:i" }}
+                          {{ post.created_at|date:"Y-m-d H:i" }}
+                          {% if post.updated_by %}
+                            (edited at {{ post.updated_at|date:"Y-m-d H:i" }})
+                          {% endif %}
                         </small>
-                    </li>
-                {% empty %}
-                    <li class="list-group-item text-muted">No posts yet.</li>
-                {% endfor %}
-            </ul>
+                      </div>
+                    </div>
+                    
+                    {% if user == post.created_by %}
+                      <a href="{% url 'post_edit' post.pk %}" class="btn btn-sm btn-outline-primary">
+                        Edit
+                      </a>
+                    {% endif %}
+                  </div>
+
+                  <!-- Post content -->
+                  <div class="p-3 rounded" style="background-color:#ffffff; border:1px solid #dee2e6;">
+                    {{ post.content }}
+                  </div>
+
+                </div>
+              </li>
+            {% empty %}
+              <!-- Improved empty state message -->
+              <li class="mb-3">
+                <div class="p-4 rounded text-center shadow-sm" style="background-color:#f8f9fa; border:1px solid #e0e0e0;">
+                  <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">No posts yet</h5>
+                  <p class="text-muted">Be the first to share your thoughts!</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <!-- Pagination controls -->
+          {% include "boards/includes/_pagination.html" with items=posts %}
+
         </div>
+      </div>
+        </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>You need to <a href="{% url 'login' %}?next={{ request.path }}">login</a> to post.</p>
     </div>
+    {% endif %}
 </div>
-
-{% include "boards/includes/_field_validation.html" with field_id=form.content.id_for_label error_id="content-error" %}
-
 {% endblock content %}

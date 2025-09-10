@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
-{% block title %}Login - Discussion Board{% endblock %}
+{% block title %}
+    Login - Discussion Board
+{% endblock title %}
 
 {% block content %}
 <div class="container">
@@ -17,36 +19,11 @@
                     <form method="post" novalidate>
                         {% csrf_token %}
                         
-                        {% include "accounts/includes/_form_errors.html" %}
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">
-                                <i class="fas fa-user me-1"></i>Username
-                            </label>
-                            {% render_field form.username class="form-control" placeholder="Enter your username" %}
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.username.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">
-                                <i class="fas fa-lock me-1"></i>Password
-                            </label>
-                            {% render_field form.password class="form-control" placeholder="Enter your password" %}
-                            {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.password.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
+                        <input type="hidden" name="next" value="{{ next }}">
+
+                        {% include "includes/_form_errors.html" %}
+                        {% include "includes/_form_fields.html" %}
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-sign-in-alt me-2"></i>Login
@@ -66,4 +43,9 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+    {% include "accounts/includes/_prevent_resubmission.html" %}
+{% endblock extra_js %}
+
 {% endblock content %}

@@ -14,21 +14,10 @@
         <div class="card-body">
             <form method="post" novalidate>
                 {% csrf_token %}
-                {% include "boards/includes/_form_errors.html" %}
                 
-                <div class="mb-3">
-                    <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
-                    {% render_field form.title class="form-control" placeholder="Topic title" %}
-                    
-                    {% if form.title.errors %}
-                        <div id="title-error" class="invalid-feedback d-block">
-                            {% for error in form.title.errors %}
-                                <small>{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
+                {% include "includes/_form_errors.html" %}
+                {% include "includes/_form_fields.html" %}
+                
                 <button type="submit" class="btn btn-primary">Add Topic</button>
             </form>
         </div>
@@ -37,29 +26,60 @@
         <a href="{% url 'board_detail' board.id %}" class="btn btn-secondary">Back to Board</a>
     </div>
     <div class="card shadow mt-4">
-        <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Topics List</h5>
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-comments me-2"></i>Recent Topics
+                <span class="badge bg-light text-dark ms-2">{{ topics.paginator.count }}</span>
+            </h5>
         </div>
         <div class="card-body">
-            <ul class="list-group">
-                {% for topic in topics %}
-                    <li class="list-group-item">
-                        <a href="{% url 'topic_detail' board.id topic.id %}" class="text-decoration-none">
-                            {{ topic.title }}
-                        </a>
-                        <br>
-                        <small class="text-muted">
-                            By {{ topic.created_by.username }} at {{ topic.created_at|date:"Y-m-d H:i" }}
-                        </small>
-                    </li>
-                {% empty %}
-                    <li class="list-group-item text-muted">No topics available</li>
-                {% endfor %}
-            </ul>
+            {% if topics %}
+                <div class="row">
+                    {% for topic in topics %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="card-title">
+                                            <a href="{% url 'topic_detail' board.id topic.id %}" 
+                                               class="text-decoration-none text-primary fw-semibold">
+                                                {{ topic.title }}
+                                            </a>
+                                        </h6>
+                                        <span class="badge bg-primary rounded-pill ms-2">
+                                            {{ topic.posts.count }}
+                                        </span>
+                                    </div>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            By {{ topic.created_by.username }}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-transparent d-flex justify-content-between">
+                                    <small class="text-muted">
+                                        {{ topic.created_at|date:"M j, Y" }}
+                                    </small>
+                                    <small class="text-muted">
+                                        {{ topic.views }} <i class="fas fa-eye ms-1"></i>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% include "boards/includes/_pagination.html" with items=topics %}
+
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No topics yet</h5>
+                    <p class="text-muted">Be the first to start a discussion!</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-{% include "boards/includes/_field_validation.html" with field_id=form.title.id_for_label error_id="title-error" %}
-
 {% endblock content %}

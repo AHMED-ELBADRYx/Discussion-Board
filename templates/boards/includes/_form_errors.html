@@ -1,8 +1,0 @@
-{# Handles non-field form errors (appears at the top of the form) #}
-{% if form.non_field_errors %}
-    <div class="alert alert-danger mb-3">
-        {% for error in form.non_field_errors %}
-            {{ error }}
-        {% endfor %}
-    </div>
-{% endif %}

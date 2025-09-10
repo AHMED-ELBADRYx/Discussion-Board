@@ -1,0 +1,45 @@
+{% if items.has_other_pages %}
+<div class="card-footer">
+    <nav aria-label="Pagination">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+            {% if items.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ items.previous_page_number }}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for num in items.paginator.page_range %}
+                {% if items.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > items.number|add:'-3' and num < items.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if items.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ items.next_page_number }}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ items.paginator.num_pages }}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}

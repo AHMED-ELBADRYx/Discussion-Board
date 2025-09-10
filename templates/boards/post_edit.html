@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+    Edit Post
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mt-2 mb-3">
+      <div class="d-inline-block px-3 py-1 rounded-pill shadow-sm" 
+          style="background-color:#f1f3f5; border:1px solid #dee2e6;">
+        <small class="fw-semibold text-secondary">
+          In topic: 
+          <a href="{% url 'topic_detail' post.topic.board.id post.topic.id %}" 
+            class="text-decoration-none fw-bold text-primary">
+            {{ post.topic.title }}
+          </a>
+        </small>
+      </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">Edit Post</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% include "includes/_form_errors.html" %}
+                {% include "includes/_form_fields.html" %}
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Update Post</button>
+                    <a href="{% url 'topic_detail' post.topic.board.id post.topic.id %}" 
+                       class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

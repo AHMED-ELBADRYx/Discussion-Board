@@ -25,23 +25,36 @@
                         <tr>
                             <td>
                                 <a href="{% url 'board_detail' board.id %}" class="text-decoration-none fw-bold">
-                                    {{ board.title }} {# The id here will sent to board_id #}
+                                    {{ board.title }}
                                 </a>
                             </td>
-                            <td>{{ board.posts_count }}</td>
-                            <td>{{ board.topics.count }}</td>
+                            <td>{{ board.total_posts }}</td>
+                            <td>{{ board.total_topics }}</td>
                             <td>
-                                {% if board.last_post %}
-                                    {{ board.last_post|date:"Y-m-d H:i" }}
+                                {% if board.last_post_date %}
+                                    {{ board.last_post_date|date:"Y-m-d H:i" }}
                                 {% else %}
                                     <span class="text-muted">No posts</span>
                                 {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">No boards available</p>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <!-- Pagination -->
+        {% include "boards/includes/_pagination.html" with items=page_obj %}
+
+        <!-- When using FBV -->
+        {% comment %} {% include "boards/includes/_pagination.html" with items=boards %} {% endcomment %}
+
     </div>
 </div>
 {% endblock content %}
